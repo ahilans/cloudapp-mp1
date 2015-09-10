@@ -1,4 +1,6 @@
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.lang.reflect.Array;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -53,7 +55,56 @@ public class MP1 {
         String[] ret = new String[20];
        
         //TODO
-
+        FileReader fr = new FileReader(this.inputFileName);
+        BufferedReader textReader = new BufferedReader(fr);
+        String line = textReader.readLine();
+        List<String> lines = new ArrayList();
+        List<Integer> indexes = Arrays.asList(this.getIndexes());
+        
+        while(line != null) {  	
+        	lines.add(line);
+            line = textReader.readLine();
+        }
+        
+        textReader.close();
+        
+        String[] linesArray = new String[lines.size()];
+        Map<String, Integer> m = new LinkedHashMap<String, Integer>();
+        lines.toArray(linesArray);
+        
+        for (int index : indexes) {
+        	line =  linesArray[index]; 
+    		StringTokenizer tokenizer = new StringTokenizer(line, this.delimiters);
+    		List<String> lineList = new ArrayList<String>();
+    		
+    		while(tokenizer.hasMoreTokens()) {
+    			lineList.add(tokenizer.nextToken().trim().toLowerCase());
+    		}
+    		
+        	List<String> stopWordsList = Arrays.asList(this.stopWordsArray);
+        	lineList.removeAll(stopWordsList);
+        	
+        	
+        	for (String a : lineList) {
+                Integer freq = m.get(a);
+                m.put(a, (freq == null) ? 1 : freq + 1);
+            }
+        	
+        }
+        
+        List<Map.Entry<String, Integer>> entries = new ArrayList<Map.Entry<String, Integer>>(m.entrySet());
+    	Collections.sort(entries, new Comparator<Map.Entry<String, Integer>>() {
+    		public int compare(Map.Entry<String, Integer> a, Map.Entry<String, Integer> b){
+    			int returnVal = b.getValue().compareTo(a.getValue()) == 0 ? a.getKey().compareTo(b.getKey()) : b.getValue().compareTo(a.getValue());
+    			
+    			return returnVal;
+    		}
+    	});
+    	int arraySize = entries.size() > 20 ? 20 : entries.size(); 
+    	for (int i = 0; i < arraySize; i++ ) {
+    		ret[i] = entries.get(i).getKey();
+    	}
+    	
         return ret;
     }
 
